@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { sites, categories } from '../data/navLinks.js';
+import { navLinks as sites, categories } from '../data/navLinks.js';
+
 export default function SearchIsland() {
   const [isVisible, setIsVisible] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const searchInputRef = useRef(null);
   const searchResultsRef = useRef(null);
+
   const openSearch = () => {
     setIsVisible(true);
     setTimeout(() => {
       searchInputRef.current?.focus();
     }, 10);
   };
+
   const closeSearch = () => {
     setTimeout(() => {
       setIsVisible(false);
@@ -23,6 +26,7 @@ export default function SearchIsland() {
       setSearchResults([]);
     }, 10);
   };
+
   const handleSearchInput = (e) => {
     const searchTerm = e.target.value.trim().toLowerCase();
     if (!searchTerm) {
@@ -30,10 +34,12 @@ export default function SearchIsland() {
       searchResultsRef.current?.classList.add('hidden');
       return;
     }
+
     const getCategoryNameById = (categoryId) => {
       const category = categories.find(cat => cat.id === categoryId);
       return category ? category.name : '';
     };
+
     const filteredResults = sites.filter(site => {
       const categoryObj = categories.find(cat => cat.id === site.category);
       const categoryName = categoryObj ? categoryObj.name.toLowerCase() : '';
@@ -51,6 +57,7 @@ export default function SearchIsland() {
         categoryIcon: categoryObj ? categoryObj.icon : null 
       };
     });
+
     setSearchResults(filteredResults);
     if (filteredResults.length > 0) {
       searchResultsRef.current?.classList.remove('hidden');
@@ -58,6 +65,7 @@ export default function SearchIsland() {
       searchResultsRef.current?.classList.add('hidden');
     }
   };
+
   useEffect(() => {
     const searchToggle = document.getElementById('search-toggle');
     const handleSearchToggleClick = (e) => {
@@ -65,21 +73,26 @@ export default function SearchIsland() {
       e.stopPropagation(); 
       openSearch();
     };
+
     searchToggle?.addEventListener('click', handleSearchToggleClick, {passive: false});
     searchToggle?.addEventListener('touchend', handleSearchToggleClick, {passive: false});
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         closeSearch();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       searchToggle?.removeEventListener('click', handleSearchToggleClick);
       searchToggle?.removeEventListener('touchend', handleSearchToggleClick);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
   if (!isVisible) return null;
+
   return (
     <>
       <div className="fixed top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/4 w-full max-w-5xl px-4 z-50">
