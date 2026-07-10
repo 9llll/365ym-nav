@@ -5,8 +5,9 @@ import react from '@astrojs/react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-                 // 站点 URL：硬编码，与 robots.txt.ts 一致,记得修改
-const SITE_URL = 'https://dh.zywe.de';
+
+const SITE_URL = 'https://www.365ym.com';
+
 const sitemapConfig = {
   filter: (page) => {
     const excludedPaths = [
@@ -17,8 +18,8 @@ const sitemapConfig = {
   },
   customPages: [],
   serialize: (item) => {
-    let priority = 0.7;   
-    let changefreq = 'monthly'; 
+    let priority = 0.7;
+    let changefreq = 'monthly';
     if (item.url === SITE_URL || item.url === `${SITE_URL}/`) {
       priority = 1.0;
       changefreq = 'weekly';
@@ -38,17 +39,18 @@ const sitemapConfig = {
     },
   },
 };
+
 export default defineConfig({
-  site: SITE_URL, 
+  site: SITE_URL,
   output: 'static',
   devToolbar: {
-    enabled: false, 
+    enabled: false,
   },
   build: {
-    assets: 'xw_assets', 
-    emptyOutDir: true, 
-    inlineStylesheets: 'auto', 
-    split: true, 
+    assets: 'xw_assets',
+    emptyOutDir: true,
+    inlineStylesheets: 'auto',
+    split: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -70,50 +72,49 @@ export default defineConfig({
   ],
   image: {
     service: {
-      entrypoint: 'astro/assets/services/sharp', 
+      entrypoint: 'astro/assets/services/sharp',
     },
-    format: ['webp'], 
+    format: ['webp'],
   },
   vite: {
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'), 
+        '@': path.resolve(__dirname, './src'),
       },
     },
     server: {
       fs: {
-        strict: true, 
+        strict: true,
       },
     },
     optimizeDeps: {
-      include: ['react', 'react-dom'], 
-      exclude: ['astro'], 
+      include: ['react', 'react-dom'],
+      exclude: ['astro'],
     },
     build: {
-      cssCodeSplit: true, 
-      minify: 'terser', 
+      cssCodeSplit: true,
+      minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: true, 
-          drop_debugger: true, 
-          pure_funcs: ['console.log', 'console.info'], 
-          passes: 2, 
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.info'],
+          passes: 2,
         },
         mangle: {
-          safari10: true, 
+          safari10: true,
         },
       },
-      assetsInlineLimit: 4096, 
-      chunkSizeWarningLimit: 1000, 
-      reportCompressedSize: false, 
+      assetsInlineLimit: 4096,
+      chunkSizeWarningLimit: 1000,
+      reportCompressedSize: false,
     },
     css: {
-      devSourcemap: false, 
+      devSourcemap: false,
     },
   },
-// 调试用
   server: {
-    host: '0.0.0.0', 
-    port: 4321, 
+    host: '0.0.0.0',
+    port: 4321,
   },
 });

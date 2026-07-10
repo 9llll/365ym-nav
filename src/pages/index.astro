@@ -1,142 +1,124 @@
 ---
-import MainLayout, { siteTitle, siteDescription } from '../layouts/MainLayout.astro'; 
+import MainLayout, { siteTitle, siteDescription } from '../layouts/MainLayout.astro';
 import Header from '../components/Header.astro';
-import Sidebar from '../components/Sidebar.astro';
 import Card from '../components/Card.astro';
 import Footer from '../components/Footer.astro';
-import HNavbar from '../components/HNavbar.astro';
-import { categories, sites } from '../data/navLinks.js';
-const pageTitle = siteTitle;
-const pageDescription = siteDescription;
+import { categories, navLinks } from '../data/navLinks.js';
+
+const pageTitle = '天天源码';
+const pageDescription = '免费AI工具/源码下载 - 网站源码模板插件分享平台';
+// 默认显示前 20 条
+const displayLinks = navLinks.slice(0, 20);
+const hasMore = navLinks.length > 20;
 ---
+
 <MainLayout
   title={pageTitle}
   description={pageDescription}
 >
   <Header />
-  <div class="container mx-auto px-4 lg:flex lg:flex-nowrap lg:gap-6">
-    <Sidebar class="lg:block lg:sticky lg:top-0 lg:h-screen lg:flex-none lg:w-60 lg:overflow-y-auto lg:translate-x-0 lg:z-auto" />
-    <main class="pt-24 pb-8 lg:flex-1 lg:min-w-0">
-      <h1 class="sr-only">{pageTitle}</h1> 
-      <HNavbar />
-      {categories.map(category => (
-        <section class="mb-10" id={category.id}>
-          <h2 class="category-title text-2xl font-bold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center">
-            <div class="w-8 h-8 mr-3 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-              <img src={category.icon} alt={`${category.name} 分类图标`} class="w-5 h-5" width="20" height="20" />
-            </div>
+
+  <!-- Banner 横幅区 -->
+  <section class="banner">
+    <div class="container banner-inner">
+      <div>
+        <h1 class="banner-title">天天源码</h1>
+        <p class="banner-desc">{pageDescription}</p>
+      </div>
+      <!-- 搜索表单 -->
+      <form class="search-form" onsubmit="return false;">
+        <input
+          type="text"
+          id="banner-search"
+          class="search-input"
+          placeholder="搜一下你想要的源码或工具..."
+          autocomplete="off"
+        />
+        <button type="button" class="search-btn" id="banner-search-btn">搜索</button>
+      </form>
+      <!-- 广告位占位 -->
+      <div class="banner-slot">广告位</div>
+    </div>
+  </section>
+
+  <!-- 按分类展示内容 -->
+  {categories.map(category => {
+    const catLinks = displayLinks.filter(link => link.category === category.id);
+    if (catLinks.length === 0) return null;
+    return (
+      <section class="section" id={category.id}>
+        <div class="container">
+          <h2 style="font-size:22px;font-weight:700;margin-bottom:16px;color:var(--text);">
             {category.name}
           </h2>
-          <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 sm:gap-6">
-            {sites
-              .filter(site => site.category === category.id)
-              .map(site => (
-                <Card 
-                  title={site.title}
-                  description={site.description}
-                  shortDesc={site.shortDesc}
-                  url={site.url}
-                  icon={site.icon}
-                  category={site.category}
-                />
-              ))
-            }
+          <div class="card-grid">
+            {catLinks.map(link => (
+              <Card
+                cover={link.cover || ''}
+                title={link.title}
+                url={link.url}
+                description={link.description}
+                category={category.name}
+              />
+            ))}
           </div>
-        </section>
-      ))}
-    </main>
-  </div>
+        </div>
+      </section>
+    );
+  })}
+
+  <!-- 加载更多 -->
+  {hasMore && (
+    <div class="container load-more">
+      <button class="load-more-btn" id="load-more-btn">
+        加载更多
+      </button>
+    </div>
+  )}
+
+  <!-- 友情链接 -->
+  <section class="friend-links">
+    <div class="container">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text);">友情链接</h3>
+      <div class="links">
+        <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+        <a href="https://cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>
+        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://vercel.com" target="_blank" rel="noopener">Vercel</a>
+      </div>
+    </div>
+  </section>
+
   <Footer />
 </MainLayout>
+
 <script>
-  const searchInput = document.getElementById('search-input') as HTMLInputElement;
-  const searchResults = document.getElementById('search-results');
-  const allCards = document.querySelectorAll('.card');
-  interface SearchResult {
-    title: string;
-    description: string;
-    categoryId: string;
-    categoryName: string;
-    url: string;
-    icon: string;
-  }
-  function getCategoryNameById(categoryId: string): string {
-    const categoryElement = document.querySelector(`section#${categoryId} h2`);
-    return categoryElement && categoryElement.textContent ? categoryElement.textContent.trim() : categoryId;
-  }
-  function initSearch(): void {
-    if (!searchInput) return;
-    searchInput.addEventListener('input', (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const query = target?.value?.toLowerCase() || '';
-      if (!query) {
-        searchResults?.classList.add('hidden');
-        return;
-      }
-      const results: SearchResult[] = [];
-      allCards.forEach(card => {
-        const title = card.querySelector('h3')?.textContent?.toLowerCase() || '';
-        const description = card.querySelector('p')?.textContent?.toLowerCase() || '';
-        const categoryId = card.getAttribute('data-category') || '';
-        const url = card.getAttribute('data-url') || '#';
-        const icon = card.querySelector('img')?.getAttribute('src') || '/icons/default.svg';
-        if (title.includes(query) || description.includes(query)) {
-          const categoryName = getCategoryNameById(categoryId);
-          results.push({
-            title: card.querySelector('h3')?.textContent || '',
-            description: card.querySelector('p')?.textContent || '',
-            categoryId,
-            categoryName,
-            url,
-            icon
-          });
-        }
-      });
-      if (results.length > 0) {
-        searchResults?.classList.remove('hidden');
-        let resultsHTML = '';
-        results.forEach(result => {
-          resultsHTML += `
-            <div class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer flex items-start">
-              <div class="w-10 h-10 mr-3 flex-shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
-                <img src="${result.icon}" alt="${result.title} 图标" class="w-6 h-6" width="24" height="24" loading="lazy" onerror="this.src='/icons/default.svg'">
-              </div>
-              <div class="flex-grow">
-                <h4 class="font-medium text-gray-900 dark:text-gray-100">${result.title}</h4>
-                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">${result.description}</p>
-                <span class="text-xs text-gray-500 dark:text-gray-500 mt-1">分类: ${result.categoryName}</span>
-              </div>
-            </div>
-          `;
-        });
-        if (searchResults) {
-          searchResults.innerHTML = resultsHTML;
-          const resultItems = searchResults.querySelectorAll('div.cursor-pointer');
-          resultItems.forEach((item, index) => {
-            item.addEventListener('click', () => {
-              const result = results[index];
-              if (result && result.url) {
-                window.location.href = result.url;
-              }
-            });
-          });
-        }
-      } else {
-        searchResults?.classList.remove('hidden');
-        if (searchResults) {
-          searchResults.innerHTML = `<div class="p-3 text-center text-gray-500 dark:text-gray-400">没有找到相关网站</div>`;
-        }
+  // 搜索功能
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchBtn = document.getElementById('banner-search-btn');
+    const searchInput = document.getElementById('banner-search') as HTMLInputElement;
+    const searchToggle = document.getElementById('search-toggle');
+
+    // Banner 搜索按钮触发 SearchIsland 弹窗
+    searchBtn?.addEventListener('click', () => {
+      searchToggle?.click();
+      if (searchInput) {
+        setTimeout(() => {
+          const modalInput = document.querySelector('#search-toggle + div input') as HTMLInputElement;
+          if (modalInput) {
+            modalInput.value = searchInput.value;
+            modalInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }, 200);
       }
     });
-  }
-  function initClickOutside(): void {
-    document.addEventListener('click', (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target && (!target.closest('#search-container') && !target.closest('#search-toggle'))) {
-        searchResults?.classList.add('hidden');
+
+    // 回车搜索
+    searchInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchBtn?.click();
       }
     });
-  }
-  initSearch();
-  initClickOutside();
+  });
 </script>

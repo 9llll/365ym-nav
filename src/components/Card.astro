@@ -1,34 +1,24 @@
 ---
-// src/components/Card.astro (示例)
-
-const { link } = Astro.props;
-const { name, url, icon, description, category } = link;
+// Card.astro — 365ym 风格导航卡片
+const { cover, title, url, description, category, meta } = Astro.props;
 ---
 
-<!-- 原有的卡片结构 -->
-<!-- <div class="card"> ... </div> -->
-
-<!-- 改造后的资源列表项结构 -->
-<div class="resource-item">
-  <div class="resource-info">
-    <!-- 如果有图标就显示 -->
-    {icon && <img src={icon} alt={name} class="resource-icon" />}
-    <div>
-      <a href={url} class="resource-title">{name}</a>
-      <p class="resource-desc">{description}</p>
+<a href={url} target="_blank" rel="noopener noreferrer" class="card group">
+  <div class="card-cover">
+    {cover ? (
+      <img src={cover} alt={title} loading="lazy" />
+    ) : (
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:48px;font-weight:700;">
+        {title?.charAt(0) || '?'}
+      </div>
+    )}
+  </div>
+  <div class="card-body">
+    <h3 class="card-title">{title}</h3>
+    {description && <p class="card-desc">{description}</p>}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;">
+      {category && <span class="card-badge">{category}</span>}
+      {meta && <span class="card-meta">{meta}</span>}
     </div>
   </div>
-  <span class="resource-category">{category}</span>
-</div>
-
-<style>
-  /* 在这里编写你希望的样式，比如参考 365ym 的列表样式 */
-  .resource-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #eee;
-  }
-  /* ... 更多样式 */
-</style>
+</a>
