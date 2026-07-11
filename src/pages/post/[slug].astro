@@ -1,0 +1,247 @@
+---
+// src/pages/post/[slug].astro — 365ym 详情页
+import MainLayout from '../../layouts/MainLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { navLinks, categories } from '../../data/navLinks.js';
+
+export function getStaticPaths() {
+  return navLinks.map(link => ({
+    params: { slug: link.slug },
+    props: { link }
+  }));
+}
+
+const { link } = Astro.props;
+const category = categories.find(c => c.id === link.category);
+const categoryName = category ? category.name : link.category;
+
+// 取同分类的其他文章作为相关推荐（最多5篇，排除当前）
+const relatedLinks = navLinks
+  .filter(l => l.category === link.category && l.id !== link.id)
+  .slice(0, 5);
+
+const pageTitle = `${link.title} - 天天源码`;
+const pageDescription = link.description;
+---
+
+<MainLayout
+  title={pageTitle}
+  description={pageDescription}
+>
+  <Header />
+
+  <main class="detail-page">
+    <div class="container">
+      <!-- 面包屑 -->
+      <nav aria-label="面包屑" class="breadcrumb">
+        <a href="/">首页</a> ›
+        <a href={`/#${link.category}`}>{categoryName}</a> ›
+        <span aria-current="page">{link.title}</span>
+      </nav>
+
+      <div class="detail">
+        <!-- 主内容区 -->
+        <article class="detail-main">
+          <!-- 标题 + 轮播图横排 -->
+          <div class="detail-top">
+            <!-- 图片轮播区 -->
+            {link.screenshots && link.screenshots.length > 0 ? (
+              <figure class="detail-cover slider" aria-label="截图轮播">
+                <div class="slides">
+                  {link.screenshots.map((src, i) => (
+                    <img
+                      class={`zoomable${i === 0 ? ' active' : ''}`}
+                      src={src}
+                      alt={`${link.title} 截图 ${i + 1}`}
+                      width="320"
+                      height="228"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                    />
+                  ))}
+                </div>
+                {link.screenshots.length > 1 && (
+                  <>
+                    <button class="slide-nav prev" aria-label="上一张">&#10094;</button>
+                    <button class="slide-nav next" aria-label="下一张">&#10095;</button>
+                    <div class="slide-indicators" aria-hidden="true">
+                      {link.screenshots.map((_, i) => (
+                        <button class={i === 0 ? 'active' : ''}></button>
+                      ))}
+                    </div>
+                    <div class="slide-counter">1/{link.screenshots.length}</div>
+                  </>
+                )}
+              </figure>
+            ) : link.cover ? (
+              <figure class="detail-cover">
+                <img
+                  class="zoomable"
+                  src={link.cover}
+                  alt={link.title}
+                  width="320"
+                  height="228"
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </figure>
+            ) : null}
+
+            <!-- 标题 + 元信息 -->
+            <div class="detail-info">
+              <header>
+                <h1 class="detail-title">{link.title}</h1>
+              </header>
+
+              <aside class="kv">
+                <div class="row"><strong>分类</strong><span><a href={`/#${link.category}`}>{categoryName}</a></span></div>
+                <div class="row"><strong>更新时间</strong><time datetime={link.publishDate}>{link.publishDate}</time></div>
+                {link.language && <div class="row"><strong>开发语言</strong><span>{link.language}</span></div>}
+                {link.size && <div class="row"><strong>大小</strong><span>{link.size}</span></div>}
+                {link.platform && <div class="row"><strong>运行平台</strong><span>{link.platform}</span></div>}
+                <div class="btns">
+                  {link.downloadUrl ? (
+                    <a class="btn" href={link.downloadUrl} rel="nofollow" target="_blank">免费下载</a>
+                  ) : (
+                    <a class="btn ghost disabled" href="#">暂无下载</a>
+                  )}
+                  <a class="btn ghost disabled" href="#">暂无演示</a>
+                </div>
+              </aside>
+            </div>
+          </div>
+
+          <!-- 正文内容 -->
+          <section class="detail-content" set:html={link.content} />
+
+          <!-- 标签云 -->
+          {link.tags && link.tags.length > 0 && (
+            <div style="margin-top:18px;padding-top:18px;border-top:1px dashed var(--line);">
+              <div class="tag-cloud">
+                {link.tags.map(tag => (
+                  <span>{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </article>
+
+        <!-- 侧边栏 -->
+        <aside class="aside">
+          {relatedLinks.length > 0 && (
+            <section class="widget">
+              <h3>相关推荐</h3>
+              <div class="widget-grid">
+                {relatedLinks.map(r => (
+                  <a href={`/post/${r.slug}/`} class="card">
+                    <div class="card-cover">
+                      {r.cover ? (
+                        <img src={r.cover} alt={r.title} loading="lazy" decoding="async" />
+                      ) : (
+                        <div class="card-cover-placeholder">{r.title?.charAt(0) || '?'}</div>
+                      )}
+                    </div>
+                    <div class="card-body">
+                      <h3 class="widget-card-title">{r.title}</h3>
+                      <div class="card-meta">
+                        <time datetime={r.publishDate}>更新 {r.publishDate}</time>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 文章元信息 Widget */}
+          <section class="widget">
+            <h3>文章信息</h3>
+            <div class="kv meta-widget">
+              <div class="row"><strong>分类</strong><span>{categoryName}</span></div>
+              <div class="row"><strong>发布时间</strong><span>{link.publishDate}</span></div>
+              {link.language && <div class="row"><strong>语言</strong><span>{link.language}</span></div>}
+              {link.size && <div class="row"><strong>大小</strong><span>{link.size}</span></div>}
+              {link.platform && <div class="row"><strong>平台</strong><span>{link.platform}</span></div>}
+              {link.tags && link.tags.length > 0 && (
+                <div class="row"><strong>标签</strong><span>{link.tags.join(' / ')}</span></div>
+              )}
+            </div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Lightbox 弹窗 -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="图片预览">
+    <button class="close" id="lightbox-close" aria-label="关闭预览">&times;</button>
+    <img id="lightbox-img" alt="预览图" src="" />
+  </div>
+
+  <Footer />
+</MainLayout>
+
+<script>
+  // 图片轮播
+  function initSlider(slider) {
+    const slides = slider.querySelectorAll('.slides img');
+    const prev = slider.querySelector('.slide-nav.prev');
+    const next = slider.querySelector('.slide-nav.next');
+    const indicators = slider.querySelectorAll('.slide-indicators button');
+    const counter = slider.querySelector('.slide-counter');
+    let current = 0;
+
+    function goTo(index) {
+      slides[current].classList.remove('active');
+      if (indicators.length) indicators[current].classList.remove('active');
+      current = ((index % slides.length) + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      if (indicators.length) indicators[current].classList.add('active');
+      if (counter) counter.textContent = `${current + 1}/${slides.length}`;
+    }
+
+    prev?.addEventListener('click', () => goTo(current - 1));
+    next?.addEventListener('click', () => goTo(current + 1));
+    indicators.forEach((dot, i) => {
+      dot.addEventListener('click', () => goTo(i));
+    });
+  }
+
+  document.querySelectorAll('.slider').forEach(initSlider);
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxClose = document.getElementById('lightbox-close');
+
+  document.querySelectorAll('.zoomable').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
+    });
+  });
+
+  lightboxClose?.addEventListener('click', () => {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+  });
+
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+    }
+  });
+</script>

@@ -1,9 +1,9 @@
 ---
 // Card.astro — 365ym 风格导航卡片
-const { cover, title, url, description, category, meta } = Astro.props;
+const { cover, title, slug, description, category, meta } = Astro.props;
 ---
 
-<a href={url} target="_blank" rel="noopener noreferrer" class="card group">
+<a href={`/post/${slug}/`} class="card group">
   <div class="card-cover">
     {cover ? (
       <img src={cover} alt={title} loading="lazy" />
