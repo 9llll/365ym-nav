@@ -1,15 +1,25 @@
 ---
-import MainLayout, { siteTitle, siteDescription } from '../layouts/MainLayout.astro';
+import MainLayout from '../layouts/MainLayout.astro';
 import Header from '../components/Header.astro';
 import Card from '../components/Card.astro';
 import Footer from '../components/Footer.astro';
-import { categories, navLinks } from '../data/navLinks.js';
+import { navLinks, categories } from '../data/navLinks.js';
+
+// categoryId → 显示名称映射
+const catNameMap = Object.fromEntries(categories.map(c => [c.id, c.name]));
 
 const pageTitle = '天天源码';
 const pageDescription = '免费AI工具/源码下载 - 网站源码模板插件分享平台';
-// 默认显示前 20 条
-const displayLinks = navLinks.slice(0, 20);
-const hasMore = navLinks.length > 20;
+
+// 按发布时间倒序排列
+const sortedLinks = [...navLinks].sort((a, b) =>
+  new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+);
+
+// 首页显示前 12 篇
+const perPage = 12;
+const displayLinks = sortedLinks.slice(0, perPage);
+const hasMore = sortedLinks.length > perPage;
 ---
 
 <MainLayout
@@ -41,31 +51,25 @@ const hasMore = navLinks.length > 20;
     </div>
   </section>
 
-  <!-- 按分类展示内容 -->
-  {categories.map(category => {
-    const catLinks = displayLinks.filter(link => link.category === category.id);
-    if (catLinks.length === 0) return null;
-    return (
-      <section class="section" id={category.id}>
-        <div class="container">
-          <h2 style="font-size:22px;font-weight:700;margin-bottom:16px;color:var(--text);">
-            {category.name}
-          </h2>
-          <div class="card-grid">
-            {catLinks.map(link => (
-              <Card
-                cover={link.cover || ''}
-                title={link.title}
-                slug={link.slug}
-                description={link.description}
-                category={category.name}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  })}
+  <!-- 最新发布 -->
+  <section class="section">
+    <div class="container">
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:16px;color:var(--text);">
+        最新发布
+      </h2>
+      <div class="card-grid">
+        {displayLinks.map(link => (
+          <Card
+            cover={link.cover || ''}
+            title={link.title}
+            slug={link.slug}
+            description={link.description}
+            category={catNameMap[link.category] || link.category}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
 
   <!-- 加载更多 -->
   {hasMore && (
@@ -99,7 +103,6 @@ const hasMore = navLinks.length > 20;
     const searchInput = document.getElementById('banner-search') as HTMLInputElement;
     const searchToggle = document.getElementById('search-toggle');
 
-    // Banner 搜索按钮触发 SearchIsland 弹窗
     searchBtn?.addEventListener('click', () => {
       searchToggle?.click();
       if (searchInput) {
@@ -113,7 +116,6 @@ const hasMore = navLinks.length > 20;
       }
     });
 
-    // 回车搜索
     searchInput?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();

@@ -36,7 +36,7 @@ const pageDescription = link.description;
       <!-- 面包屑 -->
       <nav aria-label="面包屑" class="breadcrumb">
         <a href="/">首页</a> ›
-        <a href={`/#${link.category}`}>{categoryName}</a> ›
+        <a href={`/category/${link.category}/`}>{categoryName}</a> ›
         <span aria-current="page">{link.title}</span>
       </nav>
 
@@ -97,14 +97,14 @@ const pageDescription = link.description;
               </header>
 
               <aside class="kv">
-                <div class="row"><strong>分类</strong><span><a href={`/#${link.category}`}>{categoryName}</a></span></div>
+                <div class="row"><strong>分类</strong><span><a href={`/category/${link.category}/`}>{categoryName}</a></span></div>
                 <div class="row"><strong>更新时间</strong><time datetime={link.publishDate}>{link.publishDate}</time></div>
                 {link.language && <div class="row"><strong>开发语言</strong><span>{link.language}</span></div>}
                 {link.size && <div class="row"><strong>大小</strong><span>{link.size}</span></div>}
                 {link.platform && <div class="row"><strong>运行平台</strong><span>{link.platform}</span></div>}
                 <div class="btns">
                   {link.downloadUrl ? (
-                    <a class="btn" href={link.downloadUrl} rel="nofollow" target="_blank">免费下载</a>
+                    <a class="btn" href={`/go/${link.slug}/`}>免费下载</a>
                   ) : (
                     <a class="btn ghost disabled" href="#">暂无下载</a>
                   )}

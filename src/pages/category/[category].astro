@@ -1,0 +1,64 @@
+---
+// src/pages/category/[category].astro — 分类页面
+import MainLayout from '../../layouts/MainLayout.astro';
+import Header from '../../components/Header.astro';
+import Card from '../../components/Card.astro';
+import Footer from '../../components/Footer.astro';
+import { categories, navLinks } from '../../data/navLinks.js';
+
+export function getStaticPaths() {
+  return categories.map(cat => ({
+    params: { category: cat.id },
+    props: { cat }
+  }));
+}
+
+const { cat } = Astro.props;
+
+// 该分类下的所有文章，按时间倒序
+const catLinks = navLinks
+  .filter(link => link.category === cat.id)
+  .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+
+const pageTitle = `分类：${cat.name} - 天天源码`;
+const pageDescription = `${cat.name} 相关资源列表`;
+---
+
+<MainLayout title={pageTitle} description={pageDescription}>
+  <Header />
+
+  <!-- Banner -->
+  <section class="banner">
+    <div class="container banner-inner">
+      <div>
+        <h1 class="banner-title">分类：{cat.name}</h1>
+        <p class="banner-desc">共 {catLinks.length} 篇文章</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {catLinks.length > 0 ? (
+        <div class="card-grid">
+          {catLinks.map(link => (
+            <Card
+              cover={link.cover || ''}
+              title={link.title}
+              slug={link.slug}
+              description={link.description}
+              category={cat.name}
+            />
+          ))}
+        </div>
+      ) : (
+        <div style="text-align:center;padding:60px 0;color:var(--muted);">
+          <p>该分类暂无内容</p>
+          <a href="/" style="color:var(--brand);">返回首页</a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</MainLayout>

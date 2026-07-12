@@ -5,7 +5,10 @@ import ThemeIsland from '../Island/ThemeIsland.jsx';
 import { categories } from '../data/navLinks.js';
 ---
 
-<input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
+<input type="checkbox" id="nav-toggle" class="nav-toggle" />
+<!-- 菜单遮罩，点击关闭 -->
+<label for="nav-toggle" class="nav-overlay" aria-hidden="true"></label>
+
 <header class="site-header">
   <div class="container header-inner">
     <!-- Logo -->
@@ -18,7 +21,7 @@ import { categories } from '../data/navLinks.js';
     <nav class="site-nav">
       <a href="/" aria-current="page">首页</a>
       {categories.map(cat => (
-        <a href={`#${cat.id}`}>{cat.name}</a>
+        <a href={`/category/${cat.id}/`}>{cat.name}</a>
       ))}
     </nav>
 
@@ -54,19 +57,21 @@ import { categories } from '../data/navLinks.js';
   html.dark .dark-show { display: block !important; }
   html:not(.dark) .dark-hide { display: block !important; }
   html:not(.dark) .dark-show { display: none !important; }
-
-  /* 点击导航链接后关闭汉堡菜单 */
-  .site-nav a:target ~ #nav-toggle { display: none; }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     // 点击导航链接关闭汉堡菜单
+    const toggle = document.getElementById('nav-toggle') as HTMLInputElement;
     document.querySelectorAll('.site-nav a').forEach(link => {
       link.addEventListener('click', () => {
-        const toggle = document.getElementById('nav-toggle') as HTMLInputElement;
         if (toggle) toggle.checked = false;
       });
+    });
+    // 点击遮罩关闭菜单
+    const overlay = document.querySelector('.nav-overlay');
+    overlay?.addEventListener('click', () => {
+      if (toggle) toggle.checked = false;
     });
   });
 </script>

@@ -1,0 +1,225 @@
+---
+// src/pages/go/[slug].astro — 下载过渡页
+import MainLayout from '../../layouts/MainLayout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { navLinks, categories } from '../../data/navLinks.js';
+
+export function getStaticPaths() {
+  return navLinks.map(link => ({
+    params: { slug: link.slug },
+    props: { link }
+  }));
+}
+
+const { link } = Astro.props;
+const category = categories.find(c => c.id === link.category);
+const categoryName = category ? category.name : link.category;
+const pageTitle = `下载 ${link.title} - 天天源码`;
+
+// base64 编码下载地址，不出现在 HTML 源码可读文本中
+const encodedUrl = Buffer.from(link.downloadUrl || '', 'utf-8').toString('base64');
+---
+
+<MainLayout title={pageTitle} description={link.description}>
+  <Header />
+
+  <main class="detail-page">
+    <div class="container">
+      <nav aria-label="面包屑" class="breadcrumb">
+        <a href="/">首页</a> ›
+        <a href={`/category/${link.category}/`}>{categoryName}</a> ›
+        <a href={`/post/${link.slug}/`}>{link.title}</a> ›
+        <span aria-current="page">下载</span>
+      </nav>
+
+      <div class="go-page">
+        <article class="go-card">
+          <header>
+            <h1 class="go-title">{link.title}</h1>
+            <p class="go-desc">{link.description}</p>
+          </header>
+
+          <div class="go-info">
+            {link.size && (
+              <div class="go-info-item">
+                <strong>文件大小</strong>
+                <span>{link.size}</span>
+              </div>
+            )}
+            {link.language && (
+              <div class="go-info-item">
+                <strong>开发语言</strong>
+                <span>{link.language}</span>
+              </div>
+            )}
+            {link.platform && (
+              <div class="go-info-item">
+                <strong>运行平台</strong>
+                <span>{link.platform}</span>
+              </div>
+            )}
+            {link.publishDate && (
+              <div class="go-info-item">
+                <strong>更新时间</strong>
+                <span>{link.publishDate}</span>
+              </div>
+            )}
+          </div>
+
+          <div class="go-actions">
+            <button
+              id="go-btn"
+              class="go-btn"
+              data-url={encodedUrl}
+              disabled={!link.downloadUrl}
+            >
+              {link.downloadUrl ? '同意并访问' : '暂无下载地址'}
+            </button>
+
+            <a href={`/post/${link.slug}/`} class="go-back">返回文章</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</MainLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('go-btn');
+    if (btn && !btn.disabled) {
+      btn.addEventListener('click', () => {
+        const encoded = btn.getAttribute('data-url');
+        if (encoded) {
+          const url = atob(encoded);
+          window.location.href = url;
+        }
+      });
+    }
+  });
+</script>
+
+<style is:global>
+  .go-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 0;
+  }
+
+  .go-card {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+
+  .go-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 12px;
+  }
+
+  .go-desc {
+    font-size: 15px;
+    color: var(--muted);
+    margin: 0 0 32px;
+    line-height: 1.6;
+  }
+
+  .go-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 36px;
+    text-align: left;
+  }
+
+  .go-info-item {
+    background: var(--soft);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+
+  .go-info-item strong {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .go-info-item span {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .go-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .go-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 64px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--brand);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    min-width: 240px;
+  }
+
+  .go-btn:hover:not(:disabled) {
+    background: var(--brand-dark);
+    transform: translateY(-2px);
+  }
+
+  .go-btn:disabled {
+    background: var(--line);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .go-back {
+    font-size: 14px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .go-back:hover {
+    color: var(--brand);
+  }
+
+  @media (max-width: 768px) {
+    .go-card {
+      padding: 28px 20px;
+    }
+    .go-title {
+      font-size: 20px;
+    }
+    .go-info {
+      grid-template-columns: 1fr;
+    }
+    .go-btn {
+      min-width: 200px;
+      padding: 14px 48px;
+      font-size: 16px;
+    }
+  }
+</style>
