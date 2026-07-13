@@ -67,6 +67,18 @@ const encodedUrl = Buffer.from(link.downloadUrl || '', 'utf-8').toString('base64
             )}
           </div>
 
+          <div class="go-disclaimer">
+            <h3>免责声明</h3>
+            <ol>
+              <li>本站源码、软件仅作个人学习研究，禁止商用、非法使用，违规后果自负；喜爱程序请支持正版。</li>
+              <li>资源均来自网络收集，本站仅中转下载，版权归原作者，侵权可联系站长删除。</li>
+              <li>下载资源请24小时内删除，禁止倒卖；使用资源产生的一切风险与本站无关。</li>
+              <li>下载页面出现充值、投资诱导请立即退出，切勿轻信。</li>
+              <li>根据《计算机软件保护条例》第十七条，仅限学习研究临时使用，超范围使用责任自负。</li>
+              <li>点击同意下载即代表您已阅读并接受全部条款。</li>
+            </ol>
+          </div>
+
           <div class="go-actions">
             <button
               id="go-btn"
@@ -159,6 +171,44 @@ const encodedUrl = Buffer.from(link.downloadUrl || '', 'utf-8').toString('base64
     font-size: 15px;
     color: var(--text);
     font-weight: 500;
+  }
+
+  .go-disclaimer {
+    text-align: left;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: #fffbf0;
+    border: 1px solid #f0e4c0;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #8c7a44;
+    line-height: 1.8;
+  }
+
+  html.dark .go-disclaimer {
+    background: rgba(180, 150, 60, 0.1);
+    border-color: rgba(180, 150, 60, 0.25);
+    color: #c4a85c;
+  }
+
+  .go-disclaimer h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #b8942e;
+    margin: 0 0 10px;
+  }
+
+  html.dark .go-disclaimer h3 {
+    color: #d4b86a;
+  }
+
+  .go-disclaimer ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .go-disclaimer li {
+    margin-bottom: 4px;
   }
 
   .go-actions {
