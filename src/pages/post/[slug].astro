@@ -104,12 +104,19 @@ const pageDescription = link.description;
                 {link.platform && <div class="row"><strong>运行平台</strong><span>{link.platform}</span></div>}
                 <div class="btns">
                   {link.downloadUrl ? (
-                    <a class="btn" href={`/go/${link.slug}/`}>免费下载</a>
+                    <a class="btn" href={link.password ? 'javascript:void(0)' : `/go/${link.slug}/`} id="download-btn" data-slug={link.slug} data-password={link.password || ''}>免费下载</a>
                   ) : (
                     <a class="btn ghost disabled" href="#">暂无下载</a>
                   )}
                   <a class="btn ghost disabled" href="#">暂无演示</a>
                 </div>
+                {link.downloadUrl && link.password && (
+                  <div class="pw-inline" id="pw-inline">
+                    <input type="password" class="pw-inline-input" id="pw-inline-input" placeholder="请输入下载密码" autocomplete="off" />
+                    <button class="pw-inline-btn" id="pw-inline-btn">确认</button>
+                    <span class="pw-inline-error" id="pw-inline-error" style="display:none;">密码错误</span>
+                  </div>
+                )}
               </aside>
             </div>
           </div>
@@ -244,4 +251,36 @@ const pageDescription = link.description;
       lightbox.setAttribute('aria-hidden', 'true');
     }
   });
+
+  // 下载密码验证（内联）
+  const pwInline = document.getElementById('pw-inline');
+  if (pwInline) {
+    const pwInput = document.getElementById('pw-inline-input');
+    const pwBtn = document.getElementById('pw-inline-btn');
+    const pwError = document.getElementById('pw-inline-error');
+    const dlBtn = document.getElementById('download-btn');
+    const correctPw = dlBtn?.getAttribute('data-password');
+    const slug = dlBtn?.getAttribute('data-slug');
+
+    function tryDownload() {
+      if (pwInput.value === correctPw) {
+        window.location.href = `/go/${slug}/`;
+      } else {
+        pwError.style.display = 'inline';
+        pwInput.value = '';
+        pwInput.focus();
+      }
+    }
+
+    pwBtn.addEventListener('click', tryDownload);
+    pwInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryDownload();
+    });
+
+    // 点击下载按钮聚焦到输入框
+    dlBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      pwInput.focus();
+    });
+  }
 </script>

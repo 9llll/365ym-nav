@@ -1123,3 +1123,50 @@ html.dark .widget {
 .meta-widget .row {
   font-size: 13px;
 }
+
+/* ========== 下载密码输入（内联） ========== */
+.pw-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.pw-inline-input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--text);
+  outline: none;
+  width: 180px;
+  transition: border-color 0.2s;
+}
+
+.pw-inline-input:focus {
+  border-color: var(--brand);
+}
+
+.pw-inline-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--brand);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pw-inline-btn:hover {
+  background: var(--brand-dark);
+}
+
+.pw-inline-error {
+  font-size: 13px;
+  color: #e74c3c;
+  margin-left: 4px;
+}
